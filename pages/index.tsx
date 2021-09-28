@@ -1,9 +1,34 @@
+import React, { useState } from 'react';
 import type { NextPage } from 'next'
 import Head from 'next/head'
 import Image from 'next/image'
+import axios from 'axios';
 import styles from '../styles/Home.module.css'
 
+type ItemProps = {
+  Item:Item;
+}
+
+type Item = {
+  author: string;
+}
+
 const Home: NextPage = () => {
+  const [value, setValue] = useState("");
+  const [items, setItems] = useState<ItemProps>();
+  const handleChange = (event: { target: { value: React.SetStateAction<string>; }; }) => {
+    setValue(event.target.value);
+  }
+  const getData = async(event: { preventDefault: () => void; }) => {
+    event.preventDefault();
+    if(value === "") return
+    axios.get(`https://app.rakuten.co.jp/services/api/BooksBook/Search/20170404?format=json&author=${value}&applicationId=1072654786515788128`)
+    .then(res => {
+      const datas = res.data.Items;
+      console.log(datas);
+      setItems(datas);
+    })
+  }
   return (
     <div className={styles.container}>
       <Head>
@@ -13,44 +38,15 @@ const Home: NextPage = () => {
       </Head>
 
       <main className={styles.main}>
-        <h1 className={styles.title}>
-          Welcome to <a href="https://nextjs.org">Next.js!</a>
-        </h1>
-
-        <p className={styles.description}>
-          Get started by editing{' '}
-          <code className={styles.code}>pages/index.js</code>
-        </p>
-
-        <div className={styles.grid}>
-          <a href="https://nextjs.org/docs" className={styles.card}>
-            <h2>Documentation &rarr;</h2>
-            <p>Find in-depth information about Next.js features and API.</p>
-          </a>
-
-          <a href="https://nextjs.org/learn" className={styles.card}>
-            <h2>Learn &rarr;</h2>
-            <p>Learn about Next.js in an interactive course with quizzes!</p>
-          </a>
-
-          <a
-            href="https://github.com/vercel/next.js/tree/master/examples"
-            className={styles.card}
-          >
-            <h2>Examples &rarr;</h2>
-            <p>Discover and deploy boilerplate example Next.js projects.</p>
-          </a>
-
-          <a
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-          >
-            <h2>Deploy &rarr;</h2>
-            <p>
-              Instantly deploy your Next.js site to a public URL with Vercel.
-            </p>
-          </a>
-        </div>
+        <form onSubmit={getData}>
+          <input type="text" value={value} onChange={handleChange} />
+          <input type="submit" value="送信" />
+        </form>
+        {items && items.map((item:ItemProps, id: number) => (
+          <div key={id}>
+            <h1>{item.Item.author}</h1>
+          </div>
+        ))}
       </main>
 
       <footer className={styles.footer}>
