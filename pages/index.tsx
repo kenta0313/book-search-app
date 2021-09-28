@@ -16,10 +16,10 @@ type Item = {
 const Home: NextPage = () => {
   const [value, setValue] = useState("");
   const [items, setItems] = useState<ItemProps>();
-  const handleChange = (event: { target: { value: React.SetStateAction<string>; }; }) => {
+  const handleChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     setValue(event.target.value);
   }
-  const getData = async(event: { preventDefault: () => void; }) => {
+  const getData = async(event: React.ChangeEvent<HTMLTextAreaElement>) => {
     event.preventDefault();
     if(value === "") return
     axios.get(`https://app.rakuten.co.jp/services/api/BooksBook/Search/20170404?format=json&author=${value}&applicationId=1072654786515788128`)
@@ -42,11 +42,13 @@ const Home: NextPage = () => {
           <input type="text" value={value} onChange={handleChange} />
           <input type="submit" value="送信" />
         </form>
-        {items && items.map((item:ItemProps, id: number) => (
+        {items ? items.map((item:ItemProps, id: number) => (
           <div key={id}>
             <h1>{item.Item.author}</h1>
           </div>
-        ))}
+        )):
+        <h1>検索結果なし</h1>
+        }
       </main>
 
       <footer className={styles.footer}>
